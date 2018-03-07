@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    machine:
+      enabled: true
+    branches:
+      only:
+        - master
+    steps:
+      - checkout
+      - run: |
+          TAG=0.1.$CIRCLE_BUILD_NUM
+          docker build --build-arg build_tag=${TAG} -t jsmootiv/antpool-exporter:$TAG .
+          docker push jsmootiv/antpool-exporter:$TAG
+
+          docker tag jsmootiv/antpool-exporter:$TAG jsmootiv/antpool-exporter:latest
+          docker push jsmootiv/antpool-exporter:latest
