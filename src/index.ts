@@ -70,6 +70,7 @@ const updateData = async function(currency: string) {
 const metricsHandler = async function (req: BearerRequest, res: Express.Response, next: Express.NextFunction) {
     let currencies = config.antpool.currencies
     await Bluebird.mapSeries(currencies, updateData)
+    res.set('Content-Type', Prometheus.register.contentType);
     res.status(200).send(Prometheus.register.metrics())
 }
 
