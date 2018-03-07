@@ -15,30 +15,44 @@ interface TimedResponse extends Express.Response {
     responseTime: number;
 }
 
-const balanceGuague = new Prometheus.Gauge({ 
-    name: 'balance_gague', 
+const PARAMS = ["currency", "pool"];
+
+const balanceGauge = new Prometheus.Gauge({ 
+    name: 'balance_gauge', 
     help: 'Account balance',
-    labelNames: ["currency"]
+    labelNames: PARAMS
 
 });
 
-const earnedGuague = new Prometheus.Gauge({
-    name: 'earned_gague',
+const earnedGauge = new Prometheus.Gauge({
+    name: 'earned_gauge',
     help: 'Account earned',
-    labelNames: ["currency"]
+    labelNames: PARAMS
 
 });
 
-const hashrateGague = new Prometheus.Gauge({
-    name: 'hashrate_gague',
+const hashrateGauge = new Prometheus.Gauge({
+    name: 'hashrate_gauge',
     help: 'Hashrate',
-    labelNames: ["currency"]
+    labelNames: PARAMS
 });
 
-const networkDificulty = new Prometheus.Gauge({
-    name: 'network_dificulty_gague',
-    help: 'Network Dificulty',
-    labelNames: ["currency"]
+const networkDificultyGauge = new Prometheus.Gauge({
+    name: 'network_dificulty_gauge',
+    help: 'Network dificulty',
+    labelNames: PARAMS
+});
+
+const poolHashrateGauge = new Prometheus.Gauge({
+    name: 'pool_hashrate_gauge',
+    help: 'Pool hashrate',
+    labelNames: PARAMS
+});
+
+const activeWorkersGauge = new Prometheus.Gauge({
+    name: 'active_workers_gauge',
+    help: 'Active workers',
+    labelNames: PARAMS
 });
 
 const authCheck = function (req: BearerRequest, res: Express.Response, next: Express.NextFunction) {
@@ -61,10 +75,13 @@ const updateData = async function(currency: string) {
     let hashRate: Antpool.IHashrateRes = result[1];
     let poolStats: Antpool.IPoolStatsRes = result[2];
 
-    balanceGuague.set({ currency: currency }, parseFloat(accountData.data.balance))
-    earnedGuague.set({ currency: currency }, parseFloat(accountData.data.earnTotal))
-    hashrateGague.set({ currency: currency }, parseFloat(hashRate.data.last10m)) //TODO: could cause an issue
-    networkDificulty.set({ currency: currency }, parseFloat(poolStats.data.networkDiff))
+    balanceGauge.set({ currency: currency, pool: "antpool" }, parseFloat(accountData.data.balance))
+    earnedGauge.set({ currency: currency, pool: "antpool" }, parseFloat(accountData.data.earnTotal))
+    hashrateGauge.set({ currency: currency, pool: "antpool" }, parseFloat(hashRate.data.last10m)) //TODO: could cause an issue since its an average
+    networkDificultyGauge.set({ currency: currency, pool: "antpool" }, parseFloat(poolStats.data.networkDiff))
+    poolHashrateGauge.set({ currency: currency, pool: "antpool" }, parseFloat(poolStats.data.poolHashrate))
+    activeWorkersGauge.set({ currency: currency, pool: "antpool" }, parseFloat(poolStats.data.activeWorkerNumber))
+    
 }
 
 const metricsHandler = async function (req: BearerRequest, res: Express.Response, next: Express.NextFunction) {
