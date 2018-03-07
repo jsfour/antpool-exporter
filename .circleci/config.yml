@@ -10,6 +10,7 @@ jobs:
       - checkout
       - run: |
           TAG=0.1.$CIRCLE_BUILD_NUM
+          docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
           docker build --build-arg build_tag=${TAG} -t jsmootiv/antpool-exporter:$TAG .
           docker push jsmootiv/antpool-exporter:$TAG
 
