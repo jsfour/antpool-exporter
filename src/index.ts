@@ -42,7 +42,7 @@ const networkDificulty = new Prometheus.Gauge({
 });
 
 const authCheck = function (req: BearerRequest, res: Express.Response, next: Express.NextFunction) {
-    if (config.prometheusAuthToken == undefined || req.token == config.prometheusAuthToken) {
+    if (req.token == config.prometheusAuthToken) {
         return next()
     }
     return res.status(401).send();
@@ -70,7 +70,7 @@ const updateData = async function(currency: string) {
 const metricsHandler = async function (req: BearerRequest, res: Express.Response, next: Express.NextFunction) {
     let currencies = config.antpool.currencies
     await Bluebird.mapSeries(currencies, updateData)
-    res.send(Prometheus.register.metrics())
+    res.status(200).send(Prometheus.register.metrics())
 }
 
 const start = function (port: number) {
